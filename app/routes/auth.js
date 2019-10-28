@@ -6,7 +6,7 @@ const passport = require('../../app/config/passport');
 const UserModel = require('../model/user');
 
 router.post('/register', async (req, res) => {
-    await UserModel.findOne({ email: req.body.username })
+    await UserModel.findOne({ username: req.body.username })
         .then(async result => {
             if (result == null) {
                 const user = { ...req.body };
