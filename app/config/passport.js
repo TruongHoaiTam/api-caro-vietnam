@@ -6,12 +6,9 @@ const JWTStrategy = passportJWT.Strategy;
 const md5 = require('md5');
 const UserModel = require('../model/user');
 
-passport.use(new LocalStrategy({
-    usernameField: 'email',
-    passwordField: 'password'
-},
-    (email, password, cb) => {
-        UserModel.findOne({ email })
+passport.use(new LocalStrategy(
+    (username, password, cb) => {
+        UserModel.findOne({ username })
             .then(user => {
                 if (user && user.password === md5(password)) {
                     return cb(null, user, { message: 'Đăng nhập thành công' });
