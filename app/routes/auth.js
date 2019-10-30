@@ -5,12 +5,41 @@ const md5 = require('md5');
 const passport = require('../../app/config/passport');
 const UserModel = require('../model/user');
 
-router.post('/register', async (req, res) => {
+const multer = require('multer');
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, './uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + file.originalname);
+    }
+})
+
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+        cb(null, true);
+    } else {
+        cb(null, false);
+    }
+}
+
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 1024 * 1024 * 5
+    },
+    fileFilter: fileFilter
+});
+
+router.post('/register', upload.single('avatar'), async (req, res) => {
     await UserModel.findOne({ username: req.body.username })
         .then(async result => {
             if (result == null) {
-                const user = { ...req.body };
-                user.password = md5(user.password);
+                const user = {
+                    ...req.body,
+                    password: md5(req.body.password),
+                    avatar: (req.file) ? req.file.path : "uploads\\no-avatar.jpg"
+                };
                 res.status(200).json(user);
                 return new UserModel(user).save();
             }
@@ -34,6 +63,36 @@ router.post('/login', (req, res) => {
             return res.status(200).json({ user, token });
         });
         return null;
+    })(req, res);
+});
+
+router.post('/update', upload.single('avatar'), (req, res) => {
+    passport.authenticate('jwt', { session: false }, async (err, user, info) => {
+        if (err || !user) {
+            return res.status(400).json({
+                message: info ? info.message : 'Update thất bại',
+                user
+            });
+        }
+        await UserModel.findOne({ username: req.body.username })
+            .then(result => {
+                if (result == null || (result != null && user.id == result.id)) {
+                    let update = {
+                        username: (req.body.username == undefined) ? user.username : req.body.username,
+                        email: (req.body.email == undefined) ? user.email : req.body.email,
+                        password: (req.body.password == undefined) ? user.password : md5(req.body.password),
+                        avatar: (req.file) ? req.file.path : user.avatar
+                    }
+                    UserModel.updateOne({ _id: user.id }, update).then(() => {
+                        return res.status(200).json(update);
+                    })
+                } else {
+                    return res.status(400).json({
+                        message: info ? info.message : 'Update thất bại',
+                        user
+                    });
+                }
+            })
     })(req, res);
 });
 
