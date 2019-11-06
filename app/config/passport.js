@@ -5,6 +5,8 @@ const LocalStrategy = require('passport-local').Strategy;
 const JWTStrategy = passportJWT.Strategy;
 const md5 = require('md5');
 const UserModel = require('../model/user');
+var FacebookTokenStrategy = require('passport-facebook-token');
+var GoogleTokenStrategy = require('passport-google-token').Strategy;
 
 passport.use(new LocalStrategy(
     (username, password, cb) => {
@@ -35,5 +37,25 @@ passport.use(new JWTStrategy({
             });
     }
 ));
+
+passport.use(new FacebookTokenStrategy({
+    clientID: '421347415482137',
+    clientSecret: 'bc3b8945b9ade2eee00b571a13677848'
+},
+    function (accessToken, refreshToken, profile, done) {
+        UserModel.upsertFbUser(accessToken, refreshToken, profile, function (err, user) {
+            return done(err, user);
+        });
+    }));
+
+passport.use(new GoogleTokenStrategy({
+    clientID: '200927370909-1gm3rlh7h6d04ehleihltkk328canmt7.apps.googleusercontent.com',
+    clientSecret: 'S5jxrdnCnl9jHOnxqsh_GG3j'
+},
+    function (accessToken, refreshToken, profile, done) {
+        UserModel.upsertGoogleUser(accessToken, refreshToken, profile, function (err, user) {
+            return done(err, user);
+        });
+    }));
 
 module.exports = passport;

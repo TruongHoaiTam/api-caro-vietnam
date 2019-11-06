@@ -96,6 +96,26 @@ router.post('/update', upload.single('avatar'), (req, res) => {
     })(req, res);
 });
 
+router.post('/login/facebook', (req, res) => {
+    passport.authenticate('facebook-token', { session: false }, (err, user, info) => {
+        if (err || !user) {
+            return res.status(401).send('User Not Authenticated');
+        }
+        const token = jwt.sign({ user }, 'bc3b8945b9ade2eee00b571a13677848');
+        return res.status(200).json({ user, token });
+    })(req, res);
+});
+
+router.post('/login/google', (req, res) => {
+    passport.authenticate('google-token', { session: false }, (err, user, info) => {
+        if (err || !user) {
+            return res.status(401).send('User Not Authenticated');
+        }
+        const token = jwt.sign({ user }, 'rx-n9iou9gtjvCvqhRdtdgnp');
+        return res.status(200).json({ user, token });
+    })(req, res);
+});
+
 module.exports = router;
 
 

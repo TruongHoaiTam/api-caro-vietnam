@@ -1,12 +1,21 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+var cors = require('cors');
 
 mongoose.connect(`mongodb+srv://Hatomia:hatomiatruong@caro-vietnam-8rsia.gcp.mongodb.net/test?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const app = express();
 
 const port = process.env.PORT || '3000';
+
+var corsOption = {
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    exposedHeaders: ['x-auth-token']
+};
+app.use(cors(corsOption));
 
 ////
 var server = require('http').Server(app);
