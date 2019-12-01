@@ -49,8 +49,8 @@ passport.use(new FacebookTokenStrategy({
     }));
 
 passport.use(new GoogleTokenStrategy({
-    clientID: '200927370909-647a3akd0kkorlmdm8i80fdcf5dpp8op.apps.googleusercontent.com',
-    clientSecret: '0PyWgKuMZPTF943-RCuJCWfp'
+    clientID: '200927370909-24etmol2n45sebnqe0vgia4nkab6bmvu.apps.googleusercontent.com',
+    clientSecret: 'Sh3D3NAOY7XngHx2tY_llKal'
 },
     function (accessToken, refreshToken, profile, done) {
         UserModel.upsertGoogleUser(accessToken, refreshToken, profile, function (err, user) {
